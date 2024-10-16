@@ -1,3 +1,4 @@
+const { application } = require("express");
 const nodemailer = require("nodemailer");
 
 function generateOTP() {
@@ -30,6 +31,25 @@ function sendEmail(email, otp) {
       console.log("OTP Sent: ", info.response);
     }
   });
+}
+
+function getWeekRange(date) {
+  const utcDate = new Date(
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+  );
+
+  const dayOfWeek = utcDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  const startDate = new Date(utcDate.getTime());
+  const endDate = new Date(utcDate.getTime());
+
+  // Calculate start and end dates of the week
+  startDate.setDate(startDate.getDate() - dayOfWeek); // Move to the previous Sunday
+  endDate.setDate(endDate.getDate() + (6 - dayOfWeek)); // Move to the next Saturday
+
+  return {
+    startDate,
+    endDate,
+  };
 }
 
 async function getAllApplicants(benefits) {
@@ -90,6 +110,18 @@ async function getBenefitSummary(benefits) {
   );
 
   return summary;
+}
+
+async function getApplicantsBetweenDates(benefits) {
+  const range = getWeekRange(new Date());
+  let applicants = await getAllApplicants(benefits);
+
+  applicants = applicants.filter((obj) => {
+    const date = new Date(obj.application_date);
+    date >= range.startDate && date <= range.endDate;
+  });
+
+  return applicants;
 }
 
 async function getApplicationOverview(id) {
@@ -213,6 +245,9 @@ async function getVisualData(id) {
         .length,
     },
   ];
+
+  const ABR = await getApplicantsBetweenDates(benefits);
+  console.log(ABR);
 
   return {
     gender,
@@ -354,7 +389,7 @@ exports.login = async (req, res) => {
     result = await result.json();
 
     if (result.error) {
-      console.log("Error in login: ", error);
+      console.log("Error in login: ", result.error);
       return res.status(500).json({
         success: false,
         message: "Error in login",
