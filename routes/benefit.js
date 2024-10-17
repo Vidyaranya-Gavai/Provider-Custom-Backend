@@ -1,9 +1,11 @@
 const express = require("express");
 
-const { createBenefit } = require("../controllers/benefit");
+const { createBenefit, getBenefit } = require("../controllers/benefit");
 
 const router = express.Router();
 
 router.post("/create", createBenefit);
+
+router.get("/getBenefit/:documentId", getBenefit);
 
 module.exports = router;

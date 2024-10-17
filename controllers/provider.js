@@ -134,9 +134,7 @@ async function getApplicationOverview(id) {
 
   let allApplicants = await getAllApplicants(benefits);
 
-  const submittedCount = allApplicants.filter(
-    (obj) => obj.application_status === "submitted"
-  ).length;
+  const submittedCount = allApplicants.length;
   const approvedCount = allApplicants.filter(
     (obj) => obj.application_status === "approved"
   ).length;
@@ -163,6 +161,29 @@ async function getApplicationOverview(id) {
   ];
 
   return application_overview;
+}
+
+async function getFinancialOverview(id) {
+  let benefitsData = await fetch(
+    `${process.env.STRAPI_URL}/api/scholarships?filters[provider][id][$eq]=${id}&populate[sponsors]=*`
+  );
+  benefitsData = await benefitsData.json();
+
+  let benefits = benefitsData.data;
+  let totalAmt = 0,
+    totalSponsors = 0;
+
+  benefits.forEach((benefit) => {
+    totalAmt += benefit.price;
+    totalSponsors += benefit.sponsors.length;
+  });
+
+  return {
+    totalBudget: totalAmt,
+    totalSponsors: totalSponsors,
+    utilized: totalAmt * 0.7,
+    remaining: totalAmt * 0.3,
+  };
 }
 
 async function getTop3benefits(id) {
@@ -240,9 +261,20 @@ async function getVisualData(id) {
         .length,
     },
     {
-      label: "st",
+      label: "Hosteler",
       count: applicants.filter((obj) => obj.resident_type === "Hosteler")
         .length,
+    },
+  ];
+
+  const standard = [
+    {
+      label: "9",
+      count: applicants.filter((obj) => obj.class === 9).length,
+    },
+    {
+      label: "10",
+      count: applicants.filter((obj) => obj.resident_type === 10).length,
     },
   ];
 
@@ -253,6 +285,7 @@ async function getVisualData(id) {
     gender,
     caste,
     ratio,
+    standard,
   };
 }
 
@@ -535,18 +568,20 @@ exports.getOverview = async (req, res) => {
     const top_3_benefits = await getTop3benefits(id);
     const benefit_summary = await getAllBenefitsSummary(id);
     const visualData = await getVisualData(id);
+    const financialOverview = await getFinancialOverview(id);
 
     return res.status(200).json({
       application_overview,
+      financialOverview,
       top_3_benefits,
       benefit_summary,
       visualData,
     });
   } catch (error) {
-    console.log("Error in Application Overview: ", error);
+    console.log("Error in Dashboard API: ", error);
     return res.status(500).json({
       success: false,
-      message: "Error in Application Overview",
+      message: "Error in Dashboard API",
       error,
     });
   }

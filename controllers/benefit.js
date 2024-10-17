@@ -58,7 +58,7 @@ exports.createBenefit = async (req, res) => {
     const result = await strapi_result.json();
 
     if (result.error) {
-      return res.status(201).json({
+      return res.status(400).json({
         success: false,
         error: result.error,
       });
@@ -70,7 +70,37 @@ exports.createBenefit = async (req, res) => {
       result,
     });
   } catch (error) {
-    console.log("Error:", error);
+    console.log("Error in createing benefit:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error,
+    });
+  }
+};
+
+exports.getBenefit = async (req, res) => {
+  try {
+    const { documentId } = req.params;
+
+    let benefit = await fetch(
+      `${process.env.STRAPI_URL}/api/scholarships/${documentId}?populate[eligibility][populate]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
+    );
+    benefit = await benefit.json();
+
+    if (benefit.error) {
+      return res.status(400).json({
+        success: false,
+        error: benefit.error,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      benefit: benefit.data,
+    });
+  } catch (error) {
+    console.log("Error in getting benefit:", error);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
