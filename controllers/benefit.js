@@ -84,7 +84,7 @@ exports.getBenefit = async (req, res) => {
     const { documentId } = req.params;
 
     let benefit = await fetch(
-      `${process.env.STRAPI_URL}/api/scholarships/${documentId}?populate[eligibility][populate]=*&populate[financial_information][populate]=*&populate[sponsors]=*`
+      `${process.env.STRAPI_URL}/api/scholarships/${documentId}?populate[sponsors]=*&fields=price,application_deadline`
     );
     benefit = await benefit.json();
 
@@ -95,9 +95,11 @@ exports.getBenefit = async (req, res) => {
       });
     }
 
+    benefit = benefit.data;
+
     return res.status(200).json({
       success: true,
-      benefit: benefit.data,
+      benefit,
     });
   } catch (error) {
     console.log("Error in getting benefit:", error);
