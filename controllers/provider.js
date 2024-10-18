@@ -53,7 +53,6 @@ function getWeekRange(date) {
 }
 
 async function getAllApplicants(benefits) {
-  console.log("Benefits: ", benefits.length);
   const array = await Promise.all(
     benefits.map(async (benefit) => {
       const applicant_entries = await fetch(
