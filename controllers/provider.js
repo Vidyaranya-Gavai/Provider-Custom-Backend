@@ -227,19 +227,19 @@ async function getVisualData(id) {
 
   const gender = [
     {
-      label: "male",
+      label: "Male",
       count: applicants.filter(
         (obj) => obj.gender.toLocaleLowerCase() === "male"
       ).length,
     },
     {
-      label: "female",
+      label: "Female",
       count: applicants.filter(
         (obj) => obj.gender.toLocaleLowerCase() === "female"
       ).length,
     },
     {
-      label: "other",
+      label: "Other",
       count: applicants.filter(
         (obj) => obj.gender.toLocaleLowerCase() === "other"
       ).length,
@@ -248,31 +248,41 @@ async function getVisualData(id) {
 
   const caste = [
     {
-      label: "sc",
+      label: "SC",
       count: applicants.filter((obj) => obj.caste.toLocaleLowerCase() === "sc")
         .length,
     },
     {
-      label: "st",
+      label: "ST",
       count: applicants.filter((obj) => obj.caste.toLocaleLowerCase() === "st")
         .length,
     },
     {
-      label: "obc",
+      label: "OBC",
       count: applicants.filter((obj) => obj.caste.toLocaleLowerCase() === "obc")
         .length,
     },
     {
-      label: "general",
+      label: "General",
       count: applicants.filter(
         (obj) => obj.caste.toLocaleLowerCase() === "general"
+      ).length,
+    },
+    {
+      label: "Other",
+      count: applicants.filter(
+        (obj) =>
+          obj.caste.toLocaleLowerCase() !== "general" &&
+          obj.caste.toLocaleLowerCase() !== "sc" &&
+          obj.caste.toLocaleLowerCase() !== "st" &&
+          obj.caste.toLocaleLowerCase() !== "obc"
       ).length,
     },
   ];
 
   const ratio = [
     {
-      label: "Day scholar",
+      label: "Dayscholar",
       count: applicants.filter((obj) => obj.resident_type === "Dayscholar")
         .length,
     },
@@ -280,6 +290,13 @@ async function getVisualData(id) {
       label: "Hosteler",
       count: applicants.filter((obj) => obj.resident_type === "Hosteler")
         .length,
+    },
+    {
+      label: "Other",
+      count: applicants.filter(
+        (obj) =>
+          obj.resident_type !== "Hosteler" && obj.resident_type !== "Dayscholar"
+      ).length,
     },
   ];
 
