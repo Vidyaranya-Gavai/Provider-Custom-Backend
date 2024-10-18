@@ -53,12 +53,17 @@ function getWeekRange(date) {
 }
 
 async function getAllApplicants(benefits) {
+  console.log("Benefits: ", benefits.length);
   const array = await Promise.all(
     benefits.map(async (benefit) => {
       const applicant_entries = await fetch(
-        `${process.env.STRAPI_URL}/api/applications?filters[content_id][$eq]=${benefit.id}`
+        `${process.env.STRAPI_URL}/api/applications?filters[content_id][$eq]=${benefit.id}&pagination[pageSize]=100`
       );
       const applicant_entries_json = await applicant_entries.json();
+      console.log(
+        `Benfit ${benefit.id} applicants: `,
+        applicant_entries_json.data.length
+      );
       return applicant_entries_json.data;
     })
   );
@@ -224,34 +229,45 @@ async function getVisualData(id) {
   const gender = [
     {
       label: "male",
-      count: applicants.filter((obj) => obj.gender === "male").length,
+      count: applicants.filter(
+        (obj) => obj.gender.toLocaleLowerCase() === "male"
+      ).length,
     },
     {
       label: "female",
-      count: applicants.filter((obj) => obj.gender === "female").length,
+      count: applicants.filter(
+        (obj) => obj.gender.toLocaleLowerCase() === "female"
+      ).length,
     },
     {
       label: "other",
-      count: applicants.filter((obj) => obj.gender === "other").length,
+      count: applicants.filter(
+        (obj) => obj.gender.toLocaleLowerCase() === "other"
+      ).length,
     },
   ];
 
   const caste = [
     {
       label: "sc",
-      count: applicants.filter((obj) => obj.caste === "sc").length,
+      count: applicants.filter((obj) => obj.caste.toLocaleLowerCase() === "sc")
+        .length,
     },
     {
       label: "st",
-      count: applicants.filter((obj) => obj.caste === "st").length,
+      count: applicants.filter((obj) => obj.caste.toLocaleLowerCase() === "st")
+        .length,
     },
     {
       label: "obc",
-      count: applicants.filter((obj) => obj.caste === "obc").length,
+      count: applicants.filter((obj) => obj.caste.toLocaleLowerCase() === "obc")
+        .length,
     },
     {
       label: "general",
-      count: applicants.filter((obj) => obj.caste === "general").length,
+      count: applicants.filter(
+        (obj) => obj.caste.toLocaleLowerCase() === "general"
+      ).length,
     },
   ];
 
@@ -275,12 +291,9 @@ async function getVisualData(id) {
     },
     {
       label: "10",
-      count: applicants.filter((obj) => obj.resident_type === 10).length,
+      count: applicants.filter((obj) => obj.class === 10).length,
     },
   ];
-
-  const ABR = await getApplicantsBetweenDates(benefits);
-  console.log(ABR);
 
   return {
     gender,
@@ -564,6 +577,13 @@ exports.otpForLog = async (req, res) => {
 exports.getOverview = async (req, res) => {
   try {
     // let jwt = req.headers.authorization;
+
+    // if (!jwt) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Invalid JWT Token",
+    //   });
+    // }
     // jwt = jwtP.decode(jwt);
     const { id } = req.params;
 

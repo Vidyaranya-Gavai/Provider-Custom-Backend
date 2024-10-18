@@ -99,8 +99,14 @@ exports.getBenefitDetails = async (req, res) => {
         error: benefit.error,
       });
     }
-
     benefit = benefit.data;
+
+    // if (id !== benefit.provider.id) {
+    //   return res.status(401).json({
+    //     success: false,
+    //     message: "Not authorized to access this resource",
+    //   });
+    // }
 
     return res.status(200).json({
       success: true,
