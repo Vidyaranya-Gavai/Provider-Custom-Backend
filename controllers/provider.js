@@ -1,5 +1,5 @@
-const { application } = require("express");
 const nodemailer = require("nodemailer");
+const jwtP = require("jsonwebtoken");
 
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000);
@@ -94,6 +94,7 @@ async function getBenefitSummary(benefits) {
       const applicant_entries_json = await applicant_entries.json();
       return {
         id: benefit.id,
+        documentId: benefit.documentId,
         name: benefit.name,
         applicants: applicant_entries_json.meta.pagination.total,
         approved: applicant_entries_json.data.filter(
@@ -562,6 +563,8 @@ exports.otpForLog = async (req, res) => {
 
 exports.getOverview = async (req, res) => {
   try {
+    // let jwt = req.headers.authorization;
+    // jwt = jwtP.decode(jwt);
     const { id } = req.params;
 
     const application_overview = await getApplicationOverview(id);

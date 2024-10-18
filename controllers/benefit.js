@@ -1,3 +1,5 @@
+const jwtP = require("jsonwebtoken");
+
 validateDeadline = (application_deadline, extended_deadline) => {
   const ad = new Date(application_deadline);
 
@@ -79,12 +81,15 @@ exports.createBenefit = async (req, res) => {
   }
 };
 
-exports.getBenefit = async (req, res) => {
+exports.getBenefitDetails = async (req, res) => {
   try {
     const { documentId } = req.params;
+    // let jwt = req.headers.authorization;
+    // jwt = jwtP.decode(jwt);
+    // const { id } = jwt;
 
     let benefit = await fetch(
-      `${process.env.STRAPI_URL}/api/scholarships/${documentId}?populate[sponsors]=*&fields=price,application_deadline`
+      `${process.env.STRAPI_URL}/api/scholarships/${documentId}?populate[provider][fields]=id&populate[sponsors]=*&fields=price,application_deadline`
     );
     benefit = await benefit.json();
 
