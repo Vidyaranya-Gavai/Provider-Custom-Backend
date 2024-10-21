@@ -33,25 +33,6 @@ function sendEmail(email, otp) {
   });
 }
 
-function getWeekRange(date) {
-  const utcDate = new Date(
-    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
-  );
-
-  const dayOfWeek = utcDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-  const startDate = new Date(utcDate.getTime());
-  const endDate = new Date(utcDate.getTime());
-
-  // Calculate start and end dates of the week
-  startDate.setDate(startDate.getDate() - dayOfWeek); // Move to the previous Sunday
-  endDate.setDate(endDate.getDate() + (6 - dayOfWeek)); // Move to the next Saturday
-
-  return {
-    startDate,
-    endDate,
-  };
-}
-
 async function getAllApplicants(benefits) {
   const array = await Promise.all(
     benefits.map(async (benefit) => {
@@ -59,10 +40,6 @@ async function getAllApplicants(benefits) {
         `${process.env.STRAPI_URL}/api/applications?filters[content_id][$eq]=${benefit.id}&pagination[pageSize]=100`
       );
       const applicant_entries_json = await applicant_entries.json();
-      console.log(
-        `Benfit ${benefit.id} applicants: `,
-        applicant_entries_json.data.length
-      );
       return applicant_entries_json.data;
     })
   );
@@ -115,18 +92,6 @@ async function getBenefitSummary(benefits) {
   );
 
   return summary;
-}
-
-async function getApplicantsBetweenDates(benefits) {
-  const range = getWeekRange(new Date());
-  let applicants = await getAllApplicants(benefits);
-
-  applicants = applicants.filter((obj) => {
-    const date = new Date(obj.application_date);
-    date >= range.startDate && date <= range.endDate;
-  });
-
-  return applicants;
 }
 
 async function getApplicationOverview(id) {
@@ -302,11 +267,11 @@ async function getVisualData(id) {
 
   const standard = [
     {
-      label: "9",
+      label: "9th Std.",
       count: applicants.filter((obj) => obj.class === 9).length,
     },
     {
-      label: "10",
+      label: "10th Std.",
       count: applicants.filter((obj) => obj.class === 10).length,
     },
   ];
@@ -602,6 +567,20 @@ exports.getOverview = async (req, res) => {
     // }
     // jwt = jwtP.decode(jwt);
     const { id } = req.params;
+
+    // let jwtId;
+    // if (jwt && jwt.id) {
+    //   jwtId = jwt.id;
+    // } else {
+    //   jwtId = undefined;
+    // }
+
+    // if (!jwtId || Number(id) !== jwtId) {
+    //   return res.status(401).json({
+    //     success: false,
+    //     message: "Unauthorized to access this resourse",
+    //   });
+    // }
 
     const application_overview = await getApplicationOverview(id);
     const top_3_benefits = await getTop3benefits(id);

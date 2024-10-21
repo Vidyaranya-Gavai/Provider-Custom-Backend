@@ -84,9 +84,13 @@ exports.createBenefit = async (req, res) => {
 exports.getBenefitDetails = async (req, res) => {
   try {
     const { documentId } = req.params;
+
     // let jwt = req.headers.authorization;
     // jwt = jwtP.decode(jwt);
-    // const { id } = jwt;
+    // let id;
+
+    // if (jwt && jwt.id) id = jwt.id;
+    // else id = undefined;
 
     let benefit = await fetch(
       `${process.env.STRAPI_URL}/api/scholarships/${documentId}?populate[provider][fields]=id&populate[sponsors]=*&fields=price,application_deadline`
@@ -101,10 +105,10 @@ exports.getBenefitDetails = async (req, res) => {
     }
     benefit = benefit.data;
 
-    // if (id !== benefit.provider.id) {
+    // if (!id || id !== benefit.provider.id) {
     //   return res.status(401).json({
     //     success: false,
-    //     message: "Not authorized to access this resource",
+    //     message: "Unauthorized to access this resource",
     //   });
     // }
 
