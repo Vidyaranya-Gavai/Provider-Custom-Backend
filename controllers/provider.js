@@ -330,7 +330,6 @@ exports.registerProvider = async (req, res) => {
     }
 
     const password = generatePassword(row.name);
-    console.log("While Reg: ", password);
     let result = await fetch(
       `${process.env.STRAPI_URL}/api/auth/local/register`,
       {
@@ -417,7 +416,6 @@ exports.login = async (req, res) => {
     data = data[0];
 
     const password = generatePassword(data.username);
-    console.log("While Log: ", password);
     let result = await fetch(`${process.env.STRAPI_URL}/api/auth/local`, {
       method: "POST",
       headers: {
