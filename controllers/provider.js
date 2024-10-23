@@ -336,7 +336,7 @@ exports.registerProvider = async (req, res) => {
     result = await result.json();
 
     if (result.error) {
-      console.log("Error in registration: ", error);
+      console.log("Error in registration: ", result.error);
       return res.status(500).json({
         success: false,
         message: "Error in registration",
