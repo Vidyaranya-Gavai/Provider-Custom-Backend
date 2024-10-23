@@ -1,5 +1,15 @@
 const nodemailer = require("nodemailer");
 const jwtP = require("jsonwebtoken");
+const crypto = require("crypto");
+
+function generatePassword(input) {
+  const hash = crypto.createHash("sha256");
+  hash.update(input);
+
+  const hashedString = hash.digest("hex");
+
+  return hashedString.substring(0, 10);
+}
 
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000);
@@ -319,6 +329,8 @@ exports.registerProvider = async (req, res) => {
       });
     }
 
+    const password = generatePassword(row.name);
+    console.log("While Reg: ", password);
     let result = await fetch(
       `${process.env.STRAPI_URL}/api/auth/local/register`,
       {
@@ -329,7 +341,7 @@ exports.registerProvider = async (req, res) => {
         body: JSON.stringify({
           username: row.name,
           email: row.email,
-          password: row.name,
+          password: password,
         }),
       }
     );
@@ -404,6 +416,8 @@ exports.login = async (req, res) => {
     data = await data.json();
     data = data[0];
 
+    const password = generatePassword(data.username);
+    console.log("While Log: ", password);
     let result = await fetch(`${process.env.STRAPI_URL}/api/auth/local`, {
       method: "POST",
       headers: {
@@ -411,7 +425,7 @@ exports.login = async (req, res) => {
       },
       body: JSON.stringify({
         identifier: email,
-        password: data.username,
+        password: password,
       }),
     });
     result = await result.json();
